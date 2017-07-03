@@ -44,9 +44,10 @@ public class CheckpointPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         dispatcher = new CommandDispatcher(this);
         players = new HashMap<>();
+        getServer().getPluginManager().registerEvents(this, this);
+
         saveDefaultConfig();
         loadFromConfig();
-        getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override

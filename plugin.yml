@@ -3,6 +3,7 @@ main: nu.nerd.checkpoint.CheckpointPlugin
 version: ${project.version}
 description: ${project.description}
 website: ${project.url}
+softdepend: [Multiverse-Core]
 authors: [Dumbo52]
 commands:
   checkpoint:
