@@ -1,0 +1,17 @@
+name: ${project.name}
+main: nu.nerd.checkpoint.CheckpointPlugin
+version: ${project.version}
+description: ${project.description}
+website: ${project.url}
+authors: [Dumbo52]
+commands:
+  checkpoint:
+    description: Reloads Checkpoint's configuration
+    permission: checkpoint.admin
+permissions:
+  checkpoint.admin:
+    description: Allows players to to modify checkpoint courses and checkpoints
+    default: op
+  checkpoint.use:
+    description: Allows players to set and teleport back to checkpoints
+    default: true
