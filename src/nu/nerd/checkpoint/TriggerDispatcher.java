@@ -64,7 +64,7 @@ public class TriggerDispatcher {
         Material material = item.getType();
         List<ItemTrigger> triggers = itemTriggers.get(material);
         boolean dispatched = false;
-        if (itemTriggers != null) {
+        if (triggers != null) {
             for (ItemTrigger trigger : triggers) {
                 if (trigger.matchesItem(item)) {
                     trigger.dispatch(player);
