@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>nu.nerd</groupId>
   <artifactId>Checkpoint</artifactId>
-  <version>0.0.1</version>
+  <version>1.0.0</version>
   <name>Checkpoint</name>
   <url>https://github.com/NerdNu/Checkpoint</url>
   <description>Simple checkpoint solution for parkour courses.</description>
@@ -15,7 +15,6 @@
         <directory>${basedir}</directory>
         <includes>
           <include>plugin.yml</include>
-          <include>config.yml</include>
         </includes>
       </resource>
     </resources>
@@ -28,6 +27,14 @@
           <target>1.7</target>
         </configuration>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
   <repositories>
@@ -40,7 +47,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.12-R0.1-SNAPSHOT</version>
+      <version>1.12.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

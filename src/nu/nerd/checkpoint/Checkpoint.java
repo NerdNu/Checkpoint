@@ -1,7 +1,8 @@
 package nu.nerd.checkpoint;
 
+import nu.nerd.checkpoint.exception.CheckpointException;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,22 +14,33 @@ public class Checkpoint {
 
     private CheckpointCourse course;
     private String label;
-    private Location block;
-    private Location target;
+    private Location location;
+    private ItemStack icon;
 
     /**
      * Creates a {@code Checkpoint}.
      *
      * @param course the checkpoint course this belongs to
      * @param label a label for the checkpoint
-     * @param block the location of the block that sets the checkpoint
-     * @param target the location to teleport the player to
+     * @param location the location to teleport the player to
      */
-    public Checkpoint(CheckpointCourse course, String label, Location block, Location target) {
+    public Checkpoint(CheckpointCourse course, String label, Location location) {
+        this(course, label, location, null);
+    }
+
+    /**
+     * Creates a {@code Checkpoint}.
+     *
+     * @param course the checkpoint course this belongs to
+     * @param label a label for the checkpoint
+     * @param location the location to teleport the player to
+     * @param icon an ItemStack that represents the checkpoint in the index
+     */
+    public Checkpoint(CheckpointCourse course, String label, Location location, ItemStack icon) {
         this.course = course;
         this.label = label;
-        this.block = block;
-        this.target = target;
+        this.location = location;
+        this.icon = icon;
     }
 
     /**
@@ -50,21 +62,44 @@ public class Checkpoint {
     }
 
     /**
-     * Returns the location of the block that sets the checkpoint.
-     *
-     * @return the block location
-     */
-    public Location getBlock() {
-        return block;
-    }
-
-    /**
      * Returns the location that the checkpoint teleports players to.
      *
      * @return the target location
      */
-    public Location getTarget() {
-        return target;
+    public Location getLocation() {
+        return location;
+    }
+
+    /**
+     * Sets the location to the given location.
+     *
+     * @param location the new location
+     */
+    public void setLocation(Location location) {
+        this.location = location;
+
+        CheckpointPlugin plugin = CheckpointPlugin.getInstance();
+        plugin.saveToConfig();
+    }
+
+    /**
+     * Returns the icon for this checkpoint, or {@code null} if none exists.
+     * @return the icon
+     */
+    public ItemStack getIcon() {
+        return icon;
+    }
+
+    /**
+     * Sets the icon to the given ItemStack.
+     *
+     * @param icon the new icon
+     */
+    public void setIcon(ItemStack icon) {
+        this.icon = icon.clone();
+
+        CheckpointPlugin plugin = CheckpointPlugin.getInstance();
+        plugin.saveToConfig();
     }
 
     /**
@@ -72,11 +107,12 @@ public class Checkpoint {
      *
      * @return the serialized {@code Map}
      */
-    public Map<String, Object> serialize() {
+    Map<String, Object> serialize() {
         Map<String, Object> config = new HashMap<>();
 
-        config.put("block", block.serialize());
-        config.put("target", target.serialize());
+        config.put("label", label);
+        config.put("location", location.serialize());
+        config.put("icon", icon == null ? null : icon.serialize());
         return config;
     }
 
@@ -84,18 +120,29 @@ public class Checkpoint {
      * Deserializes a {@code Checkpoint} from a {@code ConfigurationSection}.
      *
      * @param course the {@code CheckpointCourse}
-     * @param label the label
-     * @param config the {@code ConfigurationSection} to deserialize from
+     * @param config the config to deserialize from
      * @return the deserialized {@code Checkpoint}
+     * @throws CheckpointException if the config could not be parsed into a checkpoint
      */
-    public static Checkpoint deserialize(CheckpointCourse course, String label, ConfigurationSection config) {
-        ConfigurationSection blockConfig = config.getConfigurationSection("block");
-        Location block = Location.deserialize(blockConfig.getValues(true));
+    static Checkpoint deserialize(CheckpointCourse course, Map<String, Object> config) throws CheckpointException {
+        String label = Utils.getString(config, "label");
+        if (label == null) {
+            throw new CheckpointException("No label provided");
+        }
 
-        ConfigurationSection targetConfig = config.getConfigurationSection("target");
-        Location target = Location.deserialize(targetConfig.getValues(true));
+        Map<String, Object> locationConfig = Utils.getSection(config, "location");
+        if (locationConfig == null) {
+            throw new CheckpointException("No location provided");
+        }
+        Location location = Location.deserialize(locationConfig);
 
-        return new Checkpoint(course, label, block, target);
+        Map<String, Object> iconConfig = Utils.getSection(config,"icon");
+        ItemStack icon = null;
+        if (iconConfig != null) {
+            icon = ItemStack.deserialize(iconConfig);
+        }
+
+        return new Checkpoint(course, label, location, icon);
     }
 
 }

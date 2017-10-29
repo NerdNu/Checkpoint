@@ -7,7 +7,13 @@ softdepend: [Multiverse-Core]
 authors: [Dumbo52]
 commands:
   checkpoint:
-    description: Reloads Checkpoint's configuration
+    description: Manage checkpoints
+    permission: checkpoint.admin
+  course:
+    description: Manage checkpoint courses
+    permission: checkpoint.admin
+  trigger:
+    description: Manage checkpoint triggers
     permission: checkpoint.admin
 permissions:
   checkpoint.admin:

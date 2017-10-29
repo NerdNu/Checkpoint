@@ -1,34 +1,40 @@
 package nu.nerd.checkpoint;
 
+import nu.nerd.checkpoint.command.CheckpointCommand;
+import nu.nerd.checkpoint.exception.CheckpointException;
+import nu.nerd.checkpoint.trigger.Trigger;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.configuration.MemoryConfiguration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
  * A course containing a set of {@code Checkpoint}s.
  */
-public class CheckpointCourse implements Iterable<Checkpoint> {
+public class CheckpointCourse {
 
     private CheckpointPlugin plugin;
-    private ItemStack item;
-    private Location itemGiver;
-    private Map<String, Checkpoint> checkpoints;
+    private List<Checkpoint> checkpoints;
+    private Map<String, Checkpoint> checkpointMap;
+    private List<Trigger> triggers;
     private String name;
 
     /**
      * Creates a new {@code CheckpointCourse}.
      *
-     * @param plugin the plugin instance
      * @param name the course's name
      */
-    public CheckpointCourse(CheckpointPlugin plugin, String name) {
-        this.plugin = plugin;
+    public CheckpointCourse(String name) {
+        plugin = CheckpointPlugin.getInstance();
+        checkpoints = new ArrayList<>();
+        checkpointMap = new HashMap<>();
+        triggers = new ArrayList<>();
         this.name = name;
-        checkpoints = new HashMap<>();
     }
 
     /**
@@ -41,78 +47,21 @@ public class CheckpointCourse implements Iterable<Checkpoint> {
     }
 
     /**
-     * Returns the {@code ItemStack} that teleports players to their last checkpoint.
-     *
-     * @return the course's teleporter {@code ItemStack}
-     */
-    public ItemStack getItem() {
-        return item;
-    }
-
-    /**
-     * Sets the {@code ItemStack} that teleports players to their last checkpoint.
-     *
-     * @param item the teleporter {@code ItemStack} to set
-     */
-    public void setItem(ItemStack item) {
-        if (this.item != null) {
-            plugin.itemHash.remove(this.item);
-        }
-        this.item = item;
-        plugin.itemHash.put(item, this);
-        plugin.saveToConfig();
-    }
-
-    /**
-     * Returns the {@code Location} of the block that gives players the teleporter item.
-     * @return the {@code Location} of the item giver
-     */
-    public Location getItemGiver() {
-        return itemGiver;
-    }
-
-    /**
-     * Sets the {@code Location} of the block that gives players the teleporter item.
-     * @param location the item giver {@code Location} to set
-     */
-    public void setItemGiver(Location location) {
-        if (this.itemGiver != null) {
-            plugin.giverHash.remove(this.itemGiver);
-        }
-        this.itemGiver = location;
-        plugin.giverHash.put(location, this);
-        plugin.saveToConfig();
-    }
-
-    /**
      * Adds a {@code Checkpoint} to the course.
      *
      * @param label a label for the {@code Checkpoint}
-     * @param block the location of the block that sets the checkpoint
-     * @param target the location that the {@code Checkpoint} teleports the player to
-     * @return the {@code Checkoint} if it was added, or {@code null} if a checkpoint with the same label exists
+     * @param location the location that the {@code Checkpoint} teleports the player to
+     * @return the {@code Checkpoint} if it was added, or {@code null} if a checkpoint with the same label exists
+     * @throws CheckpointException if a checkpoint with the given label already exists in the course
      */
-    public Checkpoint addCheckpoint(String label, Location block, Location target) {
-        if (checkpoints.containsKey(label)) {
-            return null;
+    public Checkpoint addCheckpoint(String label, Location location) throws CheckpointException {
+        if (checkpointMap.containsKey(label)) {
+            throw new CheckpointException("A checkpoint with label {{" + label + "}} already exists");
         }
 
-        Checkpoint checkpoint = new Checkpoint(this, label, block, target);
-        checkpoints.put(label, checkpoint);
-        plugin.checkpointHash.put(block, checkpoint);
-        plugin.saveToConfig();
-        return checkpoint;
-    }
-
-    /**
-     * Removes the {@code Checkpoint} with the given label from the course.
-     *
-     * @param label the label of the {@code Checkpoint} to remove
-     * @return the {@code Checkpoint} if it was removed, or {@code null} otherwise
-     */
-    public Checkpoint removeCheckpoint(String label) {
-        Checkpoint checkpoint = checkpoints.remove(label);
-        plugin.checkpointHash.remove(checkpoint.getBlock());
+        Checkpoint checkpoint = new Checkpoint(this, label, location);
+        checkpoints.add(checkpoint);
+        checkpointMap.put(label, checkpoint);
         plugin.saveToConfig();
         return checkpoint;
     }
@@ -121,25 +70,136 @@ public class CheckpointCourse implements Iterable<Checkpoint> {
      * Removes the given {@code Checkpoint} from the course.
      *
      * @param checkpoint the {@code Checkpoint} to remove
-     * @return the {@code Checkpoint} if it was removed, or {@code null} otherwise
+     * @return the {@code Checkpoint} that was removed
+     * @throws CheckpointException if the checkpoint does not exist in the course
      */
-    public Checkpoint removeCheckpoint(Checkpoint checkpoint) {
+    public Checkpoint removeCheckpoint(Checkpoint checkpoint) throws CheckpointException {
         return removeCheckpoint(checkpoint.getLabel());
     }
 
     /**
-     * Returns the {@code Checkpoint} with the given label, or {@code null} if none exists.
+     * Removes the {@code Checkpoint} with the given label from the course.
      *
-     * @param label the label of the {@code Checkpoint} to search for
-     * @return the {@code Checkpoint} with the given label, or {@code null} if none exists
+     * @param label the label of the {@code Checkpoint} to remove
+     * @return the {@code Checkpoint} that was removed
+     * @throws CheckpointException if no checkpoint with the given label exists in the course
      */
-    public Checkpoint getCheckpoint(String label) {
-        return checkpoints.get(label);
+    public Checkpoint removeCheckpoint(String label) throws CheckpointException {
+        Checkpoint checkpoint = checkpointMap.remove(label);
+        if (checkpoint == null) {
+            throw new CheckpointException("No checkpoint with label {{" + label + "}} exists");
+        }
+        checkpoints.remove(checkpoint);
+        for (Iterator<Trigger> it = triggers.iterator(); it.hasNext();) {
+            Trigger trigger = it.next();
+            if (trigger.referencesCheckpoint(checkpoint)) {
+                it.remove();
+            }
+        }
+
+        plugin.saveToConfig();
+        plugin.reindexTriggers();
+        return checkpoint;
     }
 
-    @Override
-    public Iterator<Checkpoint> iterator() {
-        return checkpoints.values().iterator();
+    /**
+     * Reorders the {@code Checkpoint} to the given index in the list.
+     *
+     * @param checkpoint the {@code Checkpoint} to reorder
+     * @param index the new index of the {@code Checkpoint}
+     * @throws CheckpointException if the index is invalid
+     */
+    public void reorderCheckpoint(Checkpoint checkpoint, int index) throws CheckpointException {
+        if (index < 0 || index >= checkpoints.size()) {
+            throw new CheckpointException("index must be between 0 and " + (checkpoints.size() - 1));
+        }
+
+        checkpoints.remove(checkpoint);
+        checkpoints.add(index, checkpoint);
+        plugin.saveToConfig();
+    }
+
+    /**
+     * Returns the {@code Checkpoint} with the given label.
+     *
+     * @param label the label of the {@code Checkpoint} to search for
+     * @return the {@code Checkpoint} with the given label
+     * @throws CheckpointException if no checkpoint with the given label exists in the course
+     */
+    public Checkpoint getCheckpoint(String label) throws CheckpointException {
+        Checkpoint checkpoint = checkpointMap.get(label);
+        if (checkpoint == null) {
+            throw new CheckpointException("Unknown checkpoint {{" + label + "}}");
+        }
+        return checkpoint;
+    }
+
+    /**
+     * Gets an ordered list of all checkpoints in the course.
+     * @return a list of all checkpoints in the course
+     */
+    public List<Checkpoint> getCheckpoints() {
+        return paginateCheckpoints(0, checkpoints.size());
+    }
+
+    /**
+     * Gets a page of checkpoints as a list.
+     * @param startIndex the offset to start with
+     * @param limit the number of checkpoints to return
+     * @return a list of paginated checkpoints
+     */
+    public List<Checkpoint> paginateCheckpoints(int startIndex, int limit) {
+        int endIndex = Math.min(startIndex + limit, checkpoints.size());
+        return checkpoints.subList(startIndex, endIndex);
+    }
+
+    /**
+     * Returns the number of checkpoints in the course.
+     * @return the number of checkpoints
+     */
+    public int checkpointCount() {
+        return checkpoints.size();
+    }
+
+    /**
+     * Adds the specified trigger to the course.
+     * @param trigger the trigger to add
+     */
+    public void addTrigger(Trigger trigger) {
+        triggers.add(trigger);
+        plugin.saveToConfig();
+        plugin.reindexTriggers();
+    }
+
+    /**
+     * Removes the specified trigger from the course.
+     * @param trigger the trigger to remove
+     */
+    public void removeTrigger(Trigger trigger) {
+        triggers.remove(trigger);
+        plugin.saveToConfig();
+        plugin.reindexTriggers();
+    }
+
+    /**
+     * Returns the trigger at the specified index.
+     * @param index the index to check
+     * @return the trigger
+     * @throws CheckpointException if the index is invalid
+     */
+    public Trigger getTrigger(int index) throws CheckpointException {
+        if (index < 0 || index >= triggers.size()) {
+            throw new CheckpointException("index must be between 0 and " + (checkpoints.size() - 1));
+        }
+        return triggers.get(index);
+    }
+
+    /**
+     * Returns a list of triggers in the course.
+     * @return the triggers
+     */
+    public List<Trigger> getTriggers() {
+        return triggers;
     }
 
     /**
@@ -147,22 +207,20 @@ public class CheckpointCourse implements Iterable<Checkpoint> {
      *
      * @return the serialized {@code Map}
      */
-    public Map<String, Object> serialize() {
+    Map<String, Object> serialize() {
         Map<String, Object> config = new HashMap<>();
 
-        if (item != null) {
-            config.put("item", item.serialize());
-        }
-
-        if (itemGiver != null) {
-            config.put("giver", itemGiver.serialize());
-        }
-
-        Map<String, Object> checkpointsConfig = new HashMap<>();
-        for (Map.Entry<String, Checkpoint> entry : checkpoints.entrySet()) {
-            checkpointsConfig.put(entry.getKey(), entry.getValue().serialize());
+        List<Map<String, Object>> checkpointsConfig = new ArrayList<>();
+        for (Checkpoint checkpoint : checkpoints) {
+            checkpointsConfig.add(checkpoint.serialize());
         }
         config.put("checkpoints", checkpointsConfig);
+
+        List<Map<String, Object>> triggersConfig = new ArrayList<>();
+        for (Trigger trigger : triggers) {
+            triggersConfig.add(trigger.serialize());
+        }
+        config.put("triggers", triggersConfig);
 
         return config;
     }
@@ -170,36 +228,54 @@ public class CheckpointCourse implements Iterable<Checkpoint> {
     /**
      * Deserializes a {@code CheckpointCourse} from a {@code ConfigurationSection}.
      *
-     * @param plugin the plugin instance
      * @param config the {@code ConfigurationSection} to deserialize from
      * @return the deserialized {@code CheckpointCourse}
      */
-    public static CheckpointCourse deserialize(CheckpointPlugin plugin, ConfigurationSection config) {
-        CheckpointCourse course = new CheckpointCourse(plugin, config.getName().toLowerCase());
+    static CheckpointCourse deserialize(ConfigurationSection config) throws CheckpointException {
+        String courseName = config.getName().toLowerCase();
+        CheckpointCourse course = new CheckpointCourse(courseName);
 
-        ConfigurationSection itemConfig = config.getConfigurationSection("item");
-        if (itemConfig != null) {
-            ItemStack item = ItemStack.deserialize(itemConfig.getValues(true));
-            course.item = item;
-            plugin.itemHash.put(item, course);
-        }
+        List<?> checkpointsConfig = config.getList("checkpoints");
+        course.loadCheckpoints(checkpointsConfig);
 
-        ConfigurationSection giverConfig = config.getConfigurationSection("giver");
-        if (giverConfig != null) {
-            Location giver = Location.deserialize(giverConfig.getValues(true));
-            course.itemGiver = giver;
-            plugin.giverHash.put(giver, course);
-        }
-
-        ConfigurationSection checkpointsConfig = config.getConfigurationSection("checkpoints");
-        for (String label : checkpointsConfig.getKeys(false)) {
-            Checkpoint checkpoint = Checkpoint.deserialize(course, label.toLowerCase(),
-                    checkpointsConfig.getConfigurationSection(label));
-            course.checkpoints.put(label.toLowerCase(), checkpoint);
-            plugin.checkpointHash.put(checkpoint.getBlock(), checkpoint);
-        }
+        List<?> triggersConfig = config.getList("triggers");
+        course.loadTriggers(triggersConfig);
 
         return course;
+    }
+
+    private void loadCheckpoints(List<?> sections) throws CheckpointException {
+        checkpoints = new ArrayList<>();
+        checkpointMap = new HashMap<>();
+        for (Object section : sections) {
+            if (!(section instanceof Map)) {
+                throw new CheckpointException("Malformed checkpoint");
+            }
+
+            Checkpoint checkpoint;
+            try {
+                checkpoint = Checkpoint.deserialize(this, (Map<String, Object>) section);
+            } catch (CheckpointException e) {
+                e.prepend("Unable to load checkpoint").printStackTrace();
+                continue;
+            }
+            checkpoints.add(checkpoint);
+            checkpointMap.put(checkpoint.getLabel(), checkpoint);
+        }
+    }
+
+    private void loadTriggers(List<?> sections) throws CheckpointException {
+        triggers = new ArrayList<>();
+        for (Object section : sections) {
+            Trigger trigger;
+            try {
+                trigger = Trigger.deserialize(this, (Map<String, Object>) section);
+            } catch (CheckpointException e) {
+                throw e.prepend("Unable to load trigger");
+            }
+            triggers.add(trigger);
+        }
+        plugin.reindexTriggers();
     }
 
 }

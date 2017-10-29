@@ -1,10 +1,10 @@
 package nu.nerd.checkpoint.command;
 
-import nu.nerd.checkpoint.CheckpointException;
+import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.CheckpointPlugin;
-import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.Queue;
 
 /**
  * A command for the Checkpoint plugin.
@@ -16,8 +16,14 @@ public abstract class CheckpointCommand {
      */
     protected CheckpointPlugin plugin;
 
-    public CheckpointCommand(CheckpointPlugin plugin) {
-        this.plugin = plugin;
+    private CheckpointCommand parent;
+
+    public CheckpointCommand() {
+        plugin = CheckpointPlugin.getInstance();
+    }
+
+    void setParent(CheckpointCommand parent) {
+        this.parent = parent;
     }
 
     /**
@@ -26,9 +32,8 @@ public abstract class CheckpointCommand {
      * @param player the player running the command
      * @param args the arguments to the command
      * @return the message to send to the player upon completion of the command execution
-     * @throws CheckpointException if the command execution encounters an error
      */
-    public abstract String execute(Player player, List<String> args) throws CheckpointException;
+    public abstract String execute(CheckpointPlayer player, Queue<String> args) throws CheckpointException;
 
     /**
      * Returns the name of the command.
@@ -54,14 +59,53 @@ public abstract class CheckpointCommand {
     public abstract String getDescription();
 
     /**
-     * Returns a string containing the arguments of the command available to the given player, or {@code null} if
-     * the player does not have access to the command.
+     * Returns a string containing the parameters to the command.
      *
-     * @param player the player
      * @return the usage string following the command name
      */
-    public String getUsage(Player player) {
+    public String getUsage() {
         return "";
+    }
+
+    /**
+     * Returns a string containing the command name and usage parameters.
+     *
+     * @return the usage string
+     */
+    public String getUsageString() {
+        String commandString = getCommandString();
+        String usage = getUsage();
+        if (usage.isEmpty()) {
+            return commandString;
+        } else {
+            return commandString + " " + usage;
+        }
+    }
+
+    void printHelp(CheckpointPlayer player) {
+        player.message(getHelp());
+    }
+
+    /**
+     * Returns the help string for the command.
+     *
+     * @return the help string
+     */
+    public String getHelp() {
+        String usageString = getUsageString();
+        String description = getDescription();
+
+        return "{{" + usageString + "}} - " + description;
+    }
+
+    private String getCommandString() {
+        String commandString = getName();
+        if (parent == null) {
+            commandString = "/" + commandString;
+        } else {
+            commandString = parent.getCommandString() + " " + commandString;
+        }
+        return commandString;
     }
 
 }

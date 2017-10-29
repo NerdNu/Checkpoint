@@ -1,19 +1,15 @@
 package nu.nerd.checkpoint;
 
 import nu.nerd.checkpoint.command.CheckpointCommand;
-import nu.nerd.checkpoint.command.CmdAdd;
-import nu.nerd.checkpoint.command.CmdCreateCourse;
-import nu.nerd.checkpoint.command.CmdInfo;
-import nu.nerd.checkpoint.command.CmdReload;
-import nu.nerd.checkpoint.command.CmdRemove;
-import nu.nerd.checkpoint.command.CmdRemoveCourse;
-import nu.nerd.checkpoint.command.CmdSetGiver;
-import nu.nerd.checkpoint.command.CmdSetItem;
-import org.bukkit.entity.Player;
+import nu.nerd.checkpoint.command.CmdCheckpoint;
+import nu.nerd.checkpoint.command.CmdCourse;
+import nu.nerd.checkpoint.command.CmdTrigger;
+import nu.nerd.checkpoint.exception.CheckpointException;
+import nu.nerd.checkpoint.exception.UsageException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * Dispatches commands to be executed by their respective {@code CheckpointCommand}s.
@@ -26,20 +22,13 @@ public class CommandDispatcher {
 
     /**
      * Creates a new {@code CommandDispatcher} for the plugin instance.
-     *
-     * @param plugin the plugin instance
      */
-    public CommandDispatcher(CheckpointPlugin plugin) {
-        this.plugin = plugin;
+    public CommandDispatcher() {
+        this.plugin = CheckpointPlugin.getInstance();
         commands = new CheckpointCommand[]{
-                new CmdCreateCourse(plugin),
-                new CmdRemoveCourse(plugin),
-                new CmdSetItem(plugin),
-                new CmdSetGiver(plugin),
-                new CmdInfo(plugin),
-                new CmdAdd(plugin),
-                new CmdRemove(plugin),
-                new CmdReload(plugin)
+                new CmdCheckpoint(),
+                new CmdCourse(),
+                new CmdTrigger(),
         };
 
         commandMap = new HashMap<>();
@@ -57,25 +46,31 @@ public class CommandDispatcher {
      * @param player the player executing the command
      * @param args the arguments to the command
      */
-    public void execute(Player player, List<String> args) {
+    public void execute(CheckpointPlayer player, Queue<String> args) {
         if (args.isEmpty()) {
             printHelp(player);
         } else {
-            CheckpointCommand command = commandMap.get(args.get(0).toLowerCase());
+            CheckpointCommand command = commandMap.get(args.poll().toLowerCase());
             if (command == null) {
                 printHelp(player);
             } else {
                 try {
-                    String msg = command.execute(player, args.subList(1, args.size()));
+                    String msg = command.execute(player, args);
                     if (!msg.isEmpty()) {
-                        plugin.message(player, msg);
+                        player.message(msg);
+                    }
+                } catch (UsageException e) {
+                    if (e.hasMessage()) {
+                        player.message(e.getMessage());
+                    }
+                    if (e.command != null) {
+                        player.message("Usage: {{" + e.command.getUsageString() + "}}\n" + e.command.getDescription());
+                    } else {
+                        player.message("There was an error executing your command.");
                     }
                 } catch (CheckpointException e) {
                     if (e.hasMessage()) {
-                        plugin.message(player, e.getMessage());
-                    }
-                    if (e.isShowUsage()) {
-                        plugin.message(player, "Usage: " + usageString(command, player));
+                        player.message(e.getMessage());
                     }
                 }
             }
@@ -83,48 +78,17 @@ public class CommandDispatcher {
     }
 
     /**
-     * Sends generic SafeHorses help text to the given player.
+     * Sends generic help text to the given player.
      *
      * @param player the player to send help to
      */
-    private void printHelp(Player player) {
-        plugin.message(player, "Checkpoint Commands");
+    private void printHelp(CheckpointPlayer player) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Checkpoint Commands");
         for (CheckpointCommand command : commands) {
-            String usageArgs = command.getUsage(player);
-            if (usageArgs == null) {
-                continue;
-            }
-
-            StringBuilder str = new StringBuilder("{{/checkpoint ");
-            str.append(command.getName());
-
-            if (!usageArgs.isEmpty()) {
-                str.append(" ").append(usageArgs);
-            }
-            str.append("}} - ").append(command.getDescription());
-            plugin.message(player, str.toString());
+            builder.append("\n").append(command.getHelp());
         }
+        player.message(builder.toString());
     }
-
-    /**
-     * Returns the usage string for a command based on the given player's
-     * permissions.
-     *
-     * @param command the command
-     * @param player the player to check permissions for
-     * @return the usage string
-     */
-    private String usageString(CheckpointCommand command, Player player) {
-        StringBuilder usage = new StringBuilder("{{/checkpoint ");
-        usage.append(command.getName());
-
-        String usageArgs = command.getUsage(player);
-        if (!usageArgs.isEmpty()) {
-            usage.append(" ").append(usageArgs);
-        }
-        usage.append("}}");
-        return usage.toString();
-    }
-
 
 }
