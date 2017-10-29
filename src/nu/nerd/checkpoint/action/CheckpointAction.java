@@ -3,9 +3,11 @@ package nu.nerd.checkpoint.action;
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.CheckpointPlugin;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Map;
 import java.util.Queue;
@@ -19,7 +21,13 @@ public class CheckpointAction extends Action {
 
     @Override
     public void execute(CheckpointPlayer player) {
-        player.teleport(checkpoint);
+        CheckpointPlugin plugin = CheckpointPlugin.getInstance();
+         new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.teleport(checkpoint);
+            }
+        }.runTask(plugin);
     }
 
     @Override
