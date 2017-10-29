@@ -18,7 +18,8 @@ public class CmdTriggerActions extends CheckpointCommand {
             + "\n{{checkpoint <label>}} - teleports the player to a checkpoint"
             + "\n{{give-item}} - gives the player a copy of the item you're holding"
             + "\n{{set-checkpoint <label>}} - marks the player as having visited a checkpoint"
-            + "\n{{open-index}} - allows the player to select from visited checkpoints";
+            + "\n{{open-index}} - allows the player to select from visited checkpoints"
+            + "\n{{sleep}} - sets the player's bed location";
     }
 
     @Override

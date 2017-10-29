@@ -24,7 +24,8 @@ public abstract class Action {
             CheckpointAction.class,
             SetCheckpointAction.class,
             GiveItemAction.class,
-            OpenIndexAction.class
+            OpenIndexAction.class,
+            SleepAction.class
     );
 
     private static Map<String, Class<? extends Action>> actionTypeMap = new HashMap<>();
