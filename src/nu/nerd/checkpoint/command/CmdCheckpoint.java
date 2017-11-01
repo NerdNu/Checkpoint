@@ -7,8 +7,9 @@ public class CmdCheckpoint extends DirectoryCommand {
                 new CmdCheckpointAdd(),
                 new CmdCheckpointRemove(),
                 new CmdCheckpointModify(),
-                new CmdCheckpointInfo(),
+                new CmdCheckpointVisit(),
                 new CmdCheckpointTp(),
+                new CmdCheckpointInfo(),
                 new CmdCheckpointList(),
                 new CmdCheckpointReload()
         );

@@ -14,6 +14,7 @@ public class SleepAction extends Action {
     public void execute(CheckpointPlayer player) {
         Location location = player.getPlayer().getLocation();
         player.getPlayer().setBedSpawnLocation(location);
+        player.message("Bed location set.");
     }
 
     @Override

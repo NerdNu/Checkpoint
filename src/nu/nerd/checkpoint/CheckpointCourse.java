@@ -139,18 +139,17 @@ public class CheckpointCourse {
      * @return a list of all checkpoints in the course
      */
     public List<Checkpoint> getCheckpoints() {
-        return paginateCheckpoints(0, checkpoints.size());
+        return checkpoints;
     }
 
-    /**
-     * Gets a page of checkpoints as a list.
-     * @param startIndex the offset to start with
-     * @param limit the number of checkpoints to return
-     * @return a list of paginated checkpoints
-     */
-    public List<Checkpoint> paginateCheckpoints(int startIndex, int limit) {
-        int endIndex = Math.min(startIndex + limit, checkpoints.size());
-        return checkpoints.subList(startIndex, endIndex);
+    public List<Checkpoint> getCheckpointsWithIcons() {
+        List<Checkpoint> checkpointsWithIcons = new ArrayList<>();
+        for (Checkpoint checkpoint : checkpoints) {
+            if (checkpoint.getIcon() != null) {
+                checkpointsWithIcons.add(checkpoint);
+            }
+        }
+        return checkpointsWithIcons;
     }
 
     /**

@@ -55,8 +55,11 @@ public class CheckpointListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(InventoryClickEvent event) {
         CheckpointPlayer player = playerManager.wrap((Player) event.getView().getPlayer());
-        Inventory inventory = event.getInventory();
-        if (player.hasIndex(inventory)) {
+        Inventory topInventory = event.getView().getTopInventory();
+        if (player.hasIndex(topInventory)) {
+            if (event.getClickedInventory() == topInventory) {
+                player.clickIndex(event.getSlot());
+            }
             event.setCancelled(true);
         }
     }

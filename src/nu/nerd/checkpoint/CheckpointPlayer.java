@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -25,7 +26,7 @@ public class CheckpointPlayer {
     private final CheckpointPlugin plugin;
     private final Player player;
     private CheckpointCourse course;
-    private Map<String, LinkedHashSet<Checkpoint>> checkpoints;
+    private Map<String, LinkedHashSet<String>> checkpoints;
     private IndexView indexView;
 
     private static final Pattern messagePattern = Pattern.compile("\\{\\{(.*?)\\}\\}");
@@ -47,21 +48,50 @@ public class CheckpointPlayer {
     }
 
     /**
-     * Sets a {@code Checkpoint} for a player.
+     * Sets a {@code Checkpoint} for a player as visited.
      *
      * @param checkpoint the {@code Checkpoint}
      */
     public void setCheckpoint(Checkpoint checkpoint) {
         CheckpointCourse course = checkpoint.getCourse();
-        LinkedHashSet<Checkpoint> courseCheckpoints;
+        LinkedHashSet<String> courseCheckpoints;
         if (checkpoints.containsKey(course.getName())) {
             courseCheckpoints = checkpoints.get(course.getName());
         } else {
             courseCheckpoints = new LinkedHashSet<>();
             checkpoints.put(course.getName(), courseCheckpoints);
         }
-        courseCheckpoints.add(checkpoint);
+        courseCheckpoints.add(checkpoint.getLabel());
         saveConfig();
+    }
+
+    /**
+     * Sets a {@code Checkpoint} for a player as not visited.
+     *
+     * @param checkpoint the {@code Checkpoint}
+     */
+    public void unsetCheckpoint(Checkpoint checkpoint) {
+        CheckpointCourse course = checkpoint.getCourse();
+        if (checkpoints.containsKey(course.getName())) {
+            LinkedHashSet<String> courseCheckpoints = checkpoints.get(course.getName());
+            if (courseCheckpoints.contains(checkpoint.getLabel())) {
+                courseCheckpoints.remove(checkpoint.getLabel());
+                saveConfig();
+            }
+        }
+    }
+
+    /**
+     * Returns {@code true} if the player has visited the {@code Checkpoint}.
+     *
+     * @param checkpoint the {@code Checkpoint} to check
+     * @return {@code true} if visited, {@code false} otherwise
+     */
+    public boolean hasCheckpoint(Checkpoint checkpoint) {
+        CheckpointCourse course = checkpoint.getCourse();
+        Set<String> checkpointSet = checkpoints.get(course.getName());
+
+        return checkpointSet != null && checkpointSet.contains(checkpoint.getLabel());
     }
 
     /**
@@ -71,13 +101,22 @@ public class CheckpointPlayer {
      * @return the {@code Checkpoint}
      */
     public Checkpoint getLastCheckpoint(CheckpointCourse course) {
-        LinkedHashSet<Checkpoint> checkpointSet = checkpoints.get(course.getName());
+        LinkedHashSet<String> checkpointSet = checkpoints.get(course.getName());
 
-        Checkpoint lastCheckpoint = null;
-        for (Checkpoint checkpoint : checkpointSet) {
+        if (checkpointSet == null || checkpointSet.isEmpty()) {
+            return null;
+        }
+
+        String lastCheckpoint = null;
+        for (String checkpoint : checkpointSet) {
             lastCheckpoint = checkpoint;
         }
-        return lastCheckpoint;
+        try {
+            return course.getCheckpoint(lastCheckpoint);
+        } catch (CheckpointException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -144,11 +183,7 @@ public class CheckpointPlayer {
      * @return whether the inventory is an index view UI
      */
     public boolean hasIndex(Inventory inventory) {
-        if (indexView == null) {
-            return false;
-        } else {
-            return indexView.hasInventory(inventory);
-        }
+        return indexView != null && indexView.hasInventory(inventory);
     }
 
     /**
@@ -157,7 +192,8 @@ public class CheckpointPlayer {
      */
     public void openIndex(CheckpointCourse course) {
         closeIndex();
-        indexView = IndexView.open(this, course);
+        indexView = new IndexView(this, course);
+        indexView.open();
     }
 
     /**
@@ -168,6 +204,14 @@ public class CheckpointPlayer {
             indexView.close();
             indexView = null;
         }
+    }
+
+    /**
+     * Handles clicking on a slot in the inventory.
+     * @param slot the slot that was clicked
+     */
+    public void clickIndex(int slot) {
+        indexView.click(slot);
     }
 
     /**
@@ -208,7 +252,7 @@ public class CheckpointPlayer {
             }
 
             List<String> checkpointLabels = checkpointsConfig.getStringList(name);
-            LinkedHashSet<Checkpoint> checkpointSet = new LinkedHashSet<>();
+            LinkedHashSet<String> checkpointSet = new LinkedHashSet<>();
             for (String label : checkpointLabels) {
                 Checkpoint checkpoint;
                 try {
@@ -220,7 +264,7 @@ public class CheckpointPlayer {
                     continue;
                 }
 
-                checkpointSet.add(checkpoint);
+                checkpointSet.add(checkpoint.getLabel());
             }
             checkpoints.put(name, checkpointSet);
         }
@@ -235,11 +279,8 @@ public class CheckpointPlayer {
             YamlConfiguration config = new YamlConfiguration();
 
             Map<String, Object> checkpointsConfig = new HashMap<>();
-            for (Map.Entry<String, LinkedHashSet<Checkpoint>> entry : checkpoints.entrySet()) {
-                List<String> checkpointLabels = new ArrayList<>();
-                for (Checkpoint checkpoint : entry.getValue()) {
-                    checkpointLabels.add(checkpoint.getLabel());
-                }
+            for (Map.Entry<String, LinkedHashSet<String>> entry : checkpoints.entrySet()) {
+                List<String> checkpointLabels = new ArrayList<>(entry.getValue());
                 checkpointsConfig.put(entry.getKey(), checkpointLabels);
             }
             config.set("checkpoints", checkpointsConfig);

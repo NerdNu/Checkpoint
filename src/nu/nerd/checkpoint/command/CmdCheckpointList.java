@@ -8,6 +8,7 @@ import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
 import org.bukkit.Location;
 
+import java.util.List;
 import java.util.Queue;
 
 public class CmdCheckpointList extends CheckpointCommand {
@@ -22,6 +23,7 @@ public class CmdCheckpointList extends CheckpointCommand {
 
 
         CheckpointCourse course = player.getCourse();
+        List<Checkpoint> checkpoints = course.getCheckpoints();
         int totalPages = (course.checkpointCount() - 1) / CHECKPOINTS_PER_PAGE + 1;
         int page = 1;
 
@@ -41,14 +43,14 @@ public class CmdCheckpointList extends CheckpointCommand {
         StringBuilder builder = new StringBuilder();
         builder.append("Checkpoints for course {{").append(course.getName()).append("}} (")
                 .append(page).append("/").append(totalPages).append("):");
-        int i = (page - 1) * CHECKPOINTS_PER_PAGE;
-        for (Checkpoint checkpoint
-                : course.paginateCheckpoints((page - 1) * CHECKPOINTS_PER_PAGE, CHECKPOINTS_PER_PAGE)) {
+        int startIndex = (page - 1) * CHECKPOINTS_PER_PAGE;
+        int endIndex = Math.min(startIndex + CHECKPOINTS_PER_PAGE, checkpoints.size());
+        for (int i = startIndex; i < endIndex; i++) {
+            Checkpoint checkpoint = checkpoints.get(i);
             String label = checkpoint.getLabel();
             Location location = checkpoint.getLocation();
             builder.append("\n").append(i).append(". {{").append(label).append("}} at ")
                     .append(Utils.formatLocation(location));
-            i++;
         }
         return builder.toString();
     }
