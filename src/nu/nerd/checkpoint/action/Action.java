@@ -22,6 +22,7 @@ public abstract class Action extends Describable {
 
     public static final List<Class<? extends Action>> ACTION_TYPES = Arrays.asList(
             CheckpointAction.class,
+            LastCheckpointAction.class,
             SetCheckpointAction.class,
             GiveItemAction.class,
             OpenIndexAction.class,

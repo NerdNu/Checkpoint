@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -174,7 +175,26 @@ public class CheckpointPlayer {
      * @param checkpoint the checkpoint
      */
     public void teleport(Checkpoint checkpoint) {
-        player.teleport(checkpoint.getLocation());
+        teleport(checkpoint, false);
+    }
+
+    /**
+     * Teleports the player to the location of the given {@code Checkpoint}.
+     *
+     * @param checkpoint the checkpoint
+     * @param delay whether to delay the teleport to the next tick
+     */
+    public void teleport(Checkpoint checkpoint, boolean delay) {
+        if (delay) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    player.teleport(checkpoint.getLocation());
+                }
+            }.runTask(plugin);
+        } else {
+            player.teleport(checkpoint.getLocation());
+        }
     }
 
     /**
