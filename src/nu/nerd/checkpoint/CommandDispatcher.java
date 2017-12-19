@@ -1,9 +1,9 @@
 package nu.nerd.checkpoint;
 
 import nu.nerd.checkpoint.command.CheckpointCommand;
-import nu.nerd.checkpoint.command.CmdCheckpoint;
-import nu.nerd.checkpoint.command.CmdCourse;
-import nu.nerd.checkpoint.command.CmdTrigger;
+import nu.nerd.checkpoint.command.checkpoint.CmdCheckpoint;
+import nu.nerd.checkpoint.command.course.CmdCourse;
+import nu.nerd.checkpoint.command.trigger.CmdTrigger;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
 

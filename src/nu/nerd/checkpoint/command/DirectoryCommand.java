@@ -12,7 +12,7 @@ public abstract class DirectoryCommand extends CheckpointCommand {
     private CheckpointCommand[] subcommands;
     private Map<String, CheckpointCommand> subcommandMap;
 
-    DirectoryCommand(CheckpointCommand... subcommands) {
+    public DirectoryCommand(CheckpointCommand... subcommands) {
         super();
         this.subcommands = subcommands;
         subcommandMap = new HashMap<>();
@@ -38,7 +38,7 @@ public abstract class DirectoryCommand extends CheckpointCommand {
         return "";
     }
 
-    void printSubcommands(CheckpointPlayer player) {
+    protected void printSubcommands(CheckpointPlayer player) {
         for (CheckpointCommand subcommand : subcommands) {
             subcommand.printHelp(player);
         }

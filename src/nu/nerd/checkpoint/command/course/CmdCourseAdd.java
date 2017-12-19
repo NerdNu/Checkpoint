@@ -1,6 +1,7 @@
-package nu.nerd.checkpoint.command;
+package nu.nerd.checkpoint.command.course;
 
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
 

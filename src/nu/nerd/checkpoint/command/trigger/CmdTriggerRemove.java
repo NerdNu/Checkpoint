@@ -1,14 +1,16 @@
-package nu.nerd.checkpoint.command;
+package nu.nerd.checkpoint.command.trigger;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
+import nu.nerd.checkpoint.trigger.Trigger;
 import org.bukkit.Location;
 
 import java.util.Queue;
 
-public class CmdCheckpointAdd extends CheckpointCommand {
+public class CmdTriggerRemove extends CheckpointCommand {
 
     @Override
     public String execute(CheckpointPlayer player, Queue<String> args) throws CheckpointException {
@@ -17,27 +19,31 @@ public class CmdCheckpointAdd extends CheckpointCommand {
         }
 
         CheckpointCourse course = player.getCourse();
-        String label = args.poll().toLowerCase();
-        Location location = player.getPlayer().getLocation();
+        int index;
+        try {
+            index = Integer.parseInt(args.poll());
+        } catch (NumberFormatException e) {
+            throw new UsageException(this, "index must be an integer");
+        }
+        Trigger trigger = course.getTrigger(index);
 
-        course.addCheckpoint(label, location);
-
-        return "Checkpoint {{" + label + "}} created for course {{" + course.getName() + "}}.";
+        course.removeTrigger(trigger);
+        return "Trigger removed from course {{" + course.getName() + "}}.";
     }
 
     @Override
     public String getName() {
-        return "add";
+        return "remove";
     }
 
     @Override
     public String getDescription() {
-        return "adds a checkpoint at your current location";
+        return "removes a trigger";
     }
 
     @Override
     public String getUsage() {
-        return "<label>";
+        return "<index>";
     }
 
 }

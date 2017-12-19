@@ -1,15 +1,17 @@
-package nu.nerd.checkpoint.command;
+package nu.nerd.checkpoint.command.checkpoint;
 
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.Utils;
+import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.Location;
 
 import java.util.Queue;
 
-public class CmdCheckpointModifyIcon extends CheckpointCommand {
+public class CmdCheckpointModifyLocation extends CheckpointCommand {
 
     @Override
     public String execute(CheckpointPlayer player, Queue<String> args) throws CheckpointException {
@@ -20,21 +22,21 @@ public class CmdCheckpointModifyIcon extends CheckpointCommand {
         CheckpointCourse course = player.getCourse();
         String label = args.poll().toLowerCase();
         Checkpoint checkpoint = course.getCheckpoint(label);
-        ItemStack icon = player.getHeldItem();
+        Location location = player.getPlayer().getLocation();
 
-        checkpoint.setIcon(icon);
+        checkpoint.setLocation(location);
 
-        return "Checkpoint {{" + label + "}} icon set to {{" + icon.getType().toString() + "}}.";
+        return "Checkpoint {{" + label + "}} location set to " + Utils.formatLocation(location) + ".";
     }
 
     @Override
     public String getName() {
-        return "icon";
+        return "location";
     }
 
     @Override
     public String getDescription() {
-        return "sets the icon to your currently held item";
+        return "sets the location to your current location";
     }
 
     @Override

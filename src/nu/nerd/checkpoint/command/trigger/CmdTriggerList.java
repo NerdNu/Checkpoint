@@ -1,19 +1,18 @@
-package nu.nerd.checkpoint.command;
+package nu.nerd.checkpoint.command.trigger;
 
-import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
-import nu.nerd.checkpoint.Utils;
+import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
-import org.bukkit.Location;
+import nu.nerd.checkpoint.trigger.Trigger;
 
 import java.util.List;
 import java.util.Queue;
 
-public class CmdCheckpointList extends CheckpointCommand {
+public class CmdTriggerList extends CheckpointCommand {
 
-    private static final int CHECKPOINTS_PER_PAGE = 10;
+    private static final int TRIGGERS_PER_PAGE = 10;
 
     @Override
     public String execute(CheckpointPlayer player, Queue<String> args) throws CheckpointException {
@@ -23,8 +22,8 @@ public class CmdCheckpointList extends CheckpointCommand {
 
 
         CheckpointCourse course = player.getCourse();
-        List<Checkpoint> checkpoints = course.getCheckpoints();
-        int totalPages = (course.checkpointCount() - 1) / CHECKPOINTS_PER_PAGE + 1;
+        List<Trigger> triggers = course.getTriggers();
+        int totalPages = (triggers.size() - 1) / TRIGGERS_PER_PAGE + 1;
         int page = 1;
 
         if (args.size() == 1) {
@@ -41,16 +40,13 @@ public class CmdCheckpointList extends CheckpointCommand {
         }
 
         StringBuilder builder = new StringBuilder();
-        builder.append("Checkpoints for course {{").append(course.getName()).append("}} (")
+        builder.append("Triggers for course {{").append(course.getName()).append("}} (")
                 .append(page).append("/").append(totalPages).append("):");
-        int startIndex = (page - 1) * CHECKPOINTS_PER_PAGE;
-        int endIndex = Math.min(startIndex + CHECKPOINTS_PER_PAGE, checkpoints.size());
+        int startIndex = (page - 1) * TRIGGERS_PER_PAGE;
+        int endIndex = Math.min(startIndex + TRIGGERS_PER_PAGE, triggers.size());
         for (int i = startIndex; i < endIndex; i++) {
-            Checkpoint checkpoint = checkpoints.get(i);
-            String label = checkpoint.getLabel();
-            Location location = checkpoint.getLocation();
-            builder.append("\n").append(i).append(". {{").append(label).append("}} at ")
-                    .append(Utils.formatLocation(location));
+            Trigger trigger = triggers.get(i);
+            builder.append("\n").append(i).append(". ").append(trigger.toString());
         }
         return builder.toString();
     }
@@ -62,7 +58,7 @@ public class CmdCheckpointList extends CheckpointCommand {
 
     @Override
     public String getDescription() {
-        return "lists all checkpoints for the selected course";
+        return "lists all triggers for the selected course";
     }
 
     @Override

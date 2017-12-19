@@ -1,4 +1,6 @@
-package nu.nerd.checkpoint.command;
+package nu.nerd.checkpoint.command.trigger;
+
+import nu.nerd.checkpoint.command.DirectoryCommand;
 
 public class CmdTrigger extends DirectoryCommand {
 

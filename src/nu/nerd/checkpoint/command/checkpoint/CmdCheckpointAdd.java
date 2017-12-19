@@ -1,14 +1,16 @@
-package nu.nerd.checkpoint.command;
+package nu.nerd.checkpoint.command.checkpoint;
 
-import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
+import org.bukkit.Location;
 
 import java.util.Queue;
 
-public class CmdCheckpointTp extends CheckpointCommand {
+public class CmdCheckpointAdd extends CheckpointCommand {
+
     @Override
     public String execute(CheckpointPlayer player, Queue<String> args) throws CheckpointException {
         if (args.size() != 1) {
@@ -16,24 +18,27 @@ public class CmdCheckpointTp extends CheckpointCommand {
         }
 
         CheckpointCourse course = player.getCourse();
-        Checkpoint checkpoint = course.getCheckpoint(args.poll());
+        String label = args.poll().toLowerCase();
+        Location location = player.getPlayer().getLocation();
 
-        player.teleport(checkpoint);
-        return "";
+        course.addCheckpoint(label, location);
+
+        return "Checkpoint {{" + label + "}} created for course {{" + course.getName() + "}}.";
     }
 
     @Override
     public String getName() {
-        return "tp";
+        return "add";
     }
 
     @Override
     public String getDescription() {
-        return "teleports you to a checkpoint";
+        return "adds a checkpoint at your current location";
     }
 
     @Override
     public String getUsage() {
         return "<label>";
     }
+
 }

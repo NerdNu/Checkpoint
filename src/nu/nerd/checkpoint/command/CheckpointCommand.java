@@ -82,7 +82,7 @@ public abstract class CheckpointCommand {
         }
     }
 
-    void printHelp(CheckpointPlayer player) {
+    protected void printHelp(CheckpointPlayer player) {
         player.message(getHelp());
     }
 

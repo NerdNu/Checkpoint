@@ -1,7 +1,8 @@
-package nu.nerd.checkpoint.command;
+package nu.nerd.checkpoint.command.course;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.command.DirectoryCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 
 import java.util.Queue;
@@ -32,7 +33,7 @@ public class CmdCourse extends DirectoryCommand {
     }
 
     @Override
-    void printSubcommands(CheckpointPlayer player) {
+    protected void printSubcommands(CheckpointPlayer player) {
         super.printSubcommands(player);
         printHelp(player);
     }
