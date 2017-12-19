@@ -3,6 +3,7 @@ package nu.nerd.checkpoint.command.checkpoint;
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
@@ -12,6 +13,11 @@ import org.bukkit.Location;
 import java.util.List;
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "list",
+        description = "lists all checkpoints for the selected course",
+        usage = "[page]"
+)
 public class CmdCheckpointList extends CheckpointCommand {
 
     private static final int CHECKPOINTS_PER_PAGE = 10;
@@ -21,7 +27,6 @@ public class CmdCheckpointList extends CheckpointCommand {
         if (args.size() > 1) {
             throw new UsageException(this);
         }
-
 
         CheckpointCourse course = player.getCourse();
         List<Checkpoint> checkpoints = course.getCheckpoints();
@@ -54,21 +59,6 @@ public class CmdCheckpointList extends CheckpointCommand {
                     .append(Utils.formatLocation(location));
         }
         return builder.toString();
-    }
-
-    @Override
-    public String getName() {
-        return "list";
-    }
-
-    @Override
-    public String getDescription() {
-        return "lists all checkpoints for the selected course";
-    }
-
-    @Override
-    public String getUsage() {
-        return "[page]";
     }
 
 }

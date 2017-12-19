@@ -2,6 +2,7 @@ package nu.nerd.checkpoint.trigger;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import org.bukkit.Location;
@@ -10,14 +11,13 @@ import org.bukkit.block.Block;
 import java.util.Map;
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "block",
+        description = "triggered when a player interacts with the block you're looking at"
+)
 public class BlockTrigger extends Trigger {
 
     private Location location;
-
-    @Override
-    public String getType() {
-        return "block";
-    }
 
     @Override
     public String getParams() {

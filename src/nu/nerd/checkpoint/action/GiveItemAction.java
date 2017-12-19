@@ -2,6 +2,7 @@ package nu.nerd.checkpoint.action;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
@@ -10,6 +11,10 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "give-item",
+        description = "gives the player a copy of the item you're holding"
+)
 public class GiveItemAction extends Action {
 
     private ItemStack item;
@@ -17,11 +22,6 @@ public class GiveItemAction extends Action {
     @Override
     public void execute(CheckpointPlayer player) {
         player.giveItem(item);
-    }
-
-    @Override
-    public String getType() {
-        return "give-item";
     }
 
     @Override

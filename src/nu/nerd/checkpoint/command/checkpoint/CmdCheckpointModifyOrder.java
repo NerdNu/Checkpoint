@@ -3,12 +3,18 @@ package nu.nerd.checkpoint.command.checkpoint;
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
 
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "order",
+        description = "reorders a checkpoint to the specified index",
+        usage = "<label> <index>"
+)
 public class CmdCheckpointModifyOrder extends CheckpointCommand {
 
     @Override
@@ -31,21 +37,6 @@ public class CmdCheckpointModifyOrder extends CheckpointCommand {
         course.reorderCheckpoint(checkpoint, index);
 
         return "Checkpoint {{" + label + "}} reordered to index {{" + index + "}}.";
-    }
-
-    @Override
-    public String getName() {
-        return "order";
-    }
-
-    @Override
-    public String getDescription() {
-        return "reorders a checkpoint to the specified index";
-    }
-
-    @Override
-    public String getUsage() {
-        return "<label> <index>";
     }
 
 }

@@ -3,6 +3,7 @@ package nu.nerd.checkpoint.command.checkpoint;
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
@@ -13,6 +14,11 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "info",
+        description = "prints info about the specified checkpoint",
+        usage = "<label>"
+)
 public class CmdCheckpointInfo extends CheckpointCommand {
 
     @Override
@@ -60,21 +66,6 @@ public class CmdCheckpointInfo extends CheckpointCommand {
         }
 
         return icon.getType().toString();
-    }
-
-    @Override
-    public String getName() {
-        return "info";
-    }
-
-    @Override
-    public String getDescription() {
-        return "prints info about the specified checkpoint";
-    }
-
-    @Override
-    public String getUsage() {
-        return "<label>";
     }
 
 }

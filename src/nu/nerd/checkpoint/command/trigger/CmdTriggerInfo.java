@@ -2,6 +2,7 @@ package nu.nerd.checkpoint.command.trigger;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.action.Action;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
@@ -10,6 +11,11 @@ import nu.nerd.checkpoint.trigger.Trigger;
 
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "info",
+        description = "prints info about the trigger at the specified index",
+        usage = "<index>"
+)
 public class CmdTriggerInfo extends CheckpointCommand {
 
     @Override
@@ -30,23 +36,8 @@ public class CmdTriggerInfo extends CheckpointCommand {
 
         return "Info for trigger at index {{" + index + "}}:\n"
             + "Course name: {{" + course.getName() + "}}\n"
-            + "Trigger type: {{" + trigger.getType() + " " + trigger.getParams() + "}}\n"
-            + "Action: {{" + action.getType() + " " + action.getParams() + "}}";
-    }
-
-    @Override
-    public String getName() {
-        return "info";
-    }
-
-    @Override
-    public String getDescription() {
-        return "prints info about the trigger at the specified index";
-    }
-
-    @Override
-    public String getUsage() {
-        return "<index>";
+            + "Trigger type: {{" + trigger.getName() + " " + trigger.getParams() + "}}\n"
+            + "Action: {{" + action.getName() + " " + action.getParams() + "}}";
     }
 
 }

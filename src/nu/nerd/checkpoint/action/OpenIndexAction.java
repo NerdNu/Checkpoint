@@ -2,12 +2,17 @@ package nu.nerd.checkpoint.action;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
 
 import java.util.Map;
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "open-index",
+        description = "allows the player to select from visited checkpoints"
+)
 public class OpenIndexAction extends Action {
 
     private CheckpointCourse course;
@@ -15,11 +20,6 @@ public class OpenIndexAction extends Action {
     @Override
     public void execute(CheckpointPlayer player) {
         player.openIndex(course);
-    }
-
-    @Override
-    public String getType() {
-        return "open-index";
     }
 
     @Override

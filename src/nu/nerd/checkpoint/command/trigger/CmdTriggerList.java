@@ -2,6 +2,7 @@ package nu.nerd.checkpoint.command.trigger;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
@@ -10,6 +11,11 @@ import nu.nerd.checkpoint.trigger.Trigger;
 import java.util.List;
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "list",
+        description = "lists all triggers for the selected course",
+        usage = "[page]"
+)
 public class CmdTriggerList extends CheckpointCommand {
 
     private static final int TRIGGERS_PER_PAGE = 10;
@@ -49,21 +55,6 @@ public class CmdTriggerList extends CheckpointCommand {
             builder.append("\n").append(i).append(". ").append(trigger.toString());
         }
         return builder.toString();
-    }
-
-    @Override
-    public String getName() {
-        return "list";
-    }
-
-    @Override
-    public String getDescription() {
-        return "lists all triggers for the selected course";
-    }
-
-    @Override
-    public String getUsage() {
-        return "[page]";
     }
 
 }

@@ -1,12 +1,18 @@
 package nu.nerd.checkpoint.command.course;
 
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
 
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "remove",
+        description = "removes an existing course",
+        usage = "<course>"
+)
 public class CmdCourseRemove extends CheckpointCommand {
 
     @Override
@@ -18,21 +24,6 @@ public class CmdCourseRemove extends CheckpointCommand {
         String name = args.poll().toLowerCase();
         plugin.removeCourse(name);
         return "Course {{" + name + "}} removed.";
-    }
-
-    @Override
-    public String getName() {
-        return "remove";
-    }
-
-    @Override
-    public String getDescription() {
-        return "removes an existing course";
-    }
-
-    @Override
-    public String getUsage() {
-        return "<course>";
     }
 
 }

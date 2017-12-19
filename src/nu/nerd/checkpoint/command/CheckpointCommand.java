@@ -1,6 +1,7 @@
 package nu.nerd.checkpoint.command;
 
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.Describable;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.CheckpointPlugin;
 
@@ -9,7 +10,7 @@ import java.util.Queue;
 /**
  * A command for the Checkpoint plugin.
  */
-public abstract class CheckpointCommand {
+public abstract class CheckpointCommand extends Describable {
 
     /**
      * The plugin instance
@@ -36,35 +37,12 @@ public abstract class CheckpointCommand {
     public abstract String execute(CheckpointPlayer player, Queue<String> args) throws CheckpointException;
 
     /**
-     * Returns the name of the command.
-     *
-     * @return the command's name
-     */
-    public abstract String getName();
-
-    /**
      * Returns a list of strings that are aliases of this command.
      *
      * @return the command's aliases
      */
     public String[] getAliases() {
         return new String[]{};
-    }
-
-    /**
-     * Returns a description of the command.
-     *
-     * @return the command's description
-     */
-    public abstract String getDescription();
-
-    /**
-     * Returns a string containing the parameters to the command.
-     *
-     * @return the usage string following the command name
-     */
-    public String getUsage() {
-        return "";
     }
 
     /**

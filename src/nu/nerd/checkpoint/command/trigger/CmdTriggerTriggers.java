@@ -1,33 +1,32 @@
 package nu.nerd.checkpoint.command.trigger;
 
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.Describable;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
+import nu.nerd.checkpoint.trigger.Trigger;
 
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "triggers",
+        description = "lists available trigger types"
+)
 public class CmdTriggerTriggers extends CheckpointCommand {
 
     @Override
     public String execute(CheckpointPlayer player, Queue<String> args) throws CheckpointException {
-        return "Available trigger types:"
-            + "\n{{block}} - triggered when a player interacts with the block you're looking at"
-            + "\n{{item}} - triggered when a player clicks using the item you're holding";
-    }
-
-    @Override
-    public String getName() {
-        return "triggers";
-    }
-
-    @Override
-    public String getDescription() {
-        return "lists available trigger types";
-    }
-
-    @Override
-    public String getUsage() {
-        return "";
+        StringBuilder builder = new StringBuilder("Available trigger types:");
+        for (Class<? extends Trigger> triggerType: Trigger.TRIGGER_TYPES) {
+            DescribableMeta meta = Describable.getMeta(triggerType);
+            builder.append("\n{{").append(meta.name());
+            if (!meta.usage().equals("")) {
+                builder.append(" ").append(meta.usage());
+            }
+            builder.append("}} - ").append(meta.description());
+        }
+        return builder.toString();
     }
 
 }

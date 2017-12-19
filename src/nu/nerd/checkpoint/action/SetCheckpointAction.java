@@ -3,6 +3,7 @@ package nu.nerd.checkpoint.action;
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
@@ -10,9 +11,11 @@ import nu.nerd.checkpoint.exception.UsageException;
 import java.util.Map;
 import java.util.Queue;
 
-/**
- * Marks a player as having visited a checkpoint.
- */
+@DescribableMeta(
+        name = "set-checkpoint",
+        description = "marks the player as having visited a checkpoint",
+        usage = "<label>"
+)
 public class SetCheckpointAction extends Action {
 
     private Checkpoint checkpoint;
@@ -24,18 +27,8 @@ public class SetCheckpointAction extends Action {
     }
 
     @Override
-    public String getType() {
-        return "set-checkpoint";
-    }
-
-    @Override
     public String getParams() {
         return checkpoint.getLabel();
-    }
-
-    @Override
-    protected String getUsage() {
-        return "<label>";
     }
 
     @Override

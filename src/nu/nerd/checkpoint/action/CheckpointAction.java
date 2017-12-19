@@ -4,6 +4,7 @@ import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
 import nu.nerd.checkpoint.CheckpointPlugin;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
@@ -12,9 +13,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Map;
 import java.util.Queue;
 
-/**
- * Teleports a player to a checkpoint.
- */
+@DescribableMeta(
+        name = "checkpoint",
+        description = "teleports the player to a checkpoint",
+        usage = "<label>"
+)
 public class CheckpointAction extends Action {
 
     private Checkpoint checkpoint;
@@ -31,18 +34,8 @@ public class CheckpointAction extends Action {
     }
 
     @Override
-    public String getType() {
-        return "checkpoint";
-    }
-
-    @Override
     public String getParams() {
         return checkpoint.getLabel();
-    }
-
-    @Override
-    protected String getUsage() {
-        return "<label>";
     }
 
     @Override

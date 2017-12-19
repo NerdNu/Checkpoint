@@ -2,6 +2,7 @@ package nu.nerd.checkpoint.command.trigger;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
@@ -10,6 +11,11 @@ import org.bukkit.Location;
 
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "add",
+        description = "adds a trigger",
+        usage = "<trigger> <action>"
+)
 public class CmdTriggerAdd extends CheckpointCommand {
 
     @Override
@@ -25,21 +31,6 @@ public class CmdTriggerAdd extends CheckpointCommand {
 
         course.addTrigger(trigger);
         return "Trigger created for course {{" + course.getName() + "}}.";
-    }
-
-    @Override
-    public String getName() {
-        return "add";
-    }
-
-    @Override
-    public String getDescription() {
-        return "adds a trigger";
-    }
-
-    @Override
-    public String getUsage() {
-        return "<trigger> <action>";
     }
 
 }

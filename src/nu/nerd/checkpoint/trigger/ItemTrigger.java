@@ -2,6 +2,7 @@ package nu.nerd.checkpoint.trigger;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import org.bukkit.inventory.ItemStack;
@@ -9,14 +10,13 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "item",
+        description = "triggered when a player interacts using the item you're holding"
+)
 public class ItemTrigger extends Trigger {
 
     private ItemStack item;
-
-    @Override
-    public String getType() {
-        return "item";
-    }
 
     @Override
     public String getParams() {

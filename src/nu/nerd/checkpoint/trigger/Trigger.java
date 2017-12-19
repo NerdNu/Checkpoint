@@ -3,6 +3,8 @@ package nu.nerd.checkpoint.trigger;
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.Describable;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.action.Action;
 import nu.nerd.checkpoint.exception.CheckpointException;
@@ -14,15 +16,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-public abstract class Trigger {
+public abstract class Trigger extends Describable {
 
     @SuppressWarnings("unchecked")
-    public static final List<Class<? extends Trigger>> triggerTypes = Arrays.asList(BlockTrigger.class, ItemTrigger.class);
+    public static final List<Class<? extends Trigger>> TRIGGER_TYPES = Arrays.asList(
+            BlockTrigger.class,
+            ItemTrigger.class
+    );
+
     private static Map<String, Class<? extends Trigger>> triggerTypeMap = new HashMap<>();
     static {
-        for (Class<? extends Trigger> triggerType : triggerTypes) {
+        for (Class<? extends Trigger> triggerType : TRIGGER_TYPES) {
+            DescribableMeta meta = Describable.getMeta(triggerType);
             try {
-                triggerTypeMap.put(triggerType.newInstance().getType(), triggerType);
+                triggerTypeMap.put(meta.name(), triggerType);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -38,12 +45,6 @@ public abstract class Trigger {
     public void dispatch(CheckpointPlayer player) {
         action.execute(player);
     }
-
-    /**
-     * Returns the trigger's type as a string.
-     * @return the trigger type
-     */
-    public abstract String getType();
 
     /**
      * Returns the trigger's parameters as a string.
@@ -99,7 +100,7 @@ public abstract class Trigger {
      */
     public Map<String, Object> serialize() {
         Map<String, Object> config = new HashMap<>();
-        config.put("type", getType());
+        config.put("type", getName());
         config.put("action", action.serialize());
         saveToConfig(config);
         return config;
@@ -156,7 +157,7 @@ public abstract class Trigger {
 
     @Override
     public String toString() {
-        return "{{" + getType() + "}} " + getParams() + " -> " + action.toString();
+        return "{{" + getName() + "}} " + getParams() + " -> " + action.toString();
     }
 
 }

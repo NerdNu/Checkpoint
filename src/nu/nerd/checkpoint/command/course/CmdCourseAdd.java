@@ -1,12 +1,18 @@
 package nu.nerd.checkpoint.command.course;
 
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
 
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "add",
+        description = "creates a new course",
+        usage = "<course>"
+)
 public class CmdCourseAdd extends CheckpointCommand {
 
     @Override
@@ -18,21 +24,6 @@ public class CmdCourseAdd extends CheckpointCommand {
         String name = args.poll().toLowerCase();
         plugin.addCourse(name);
         return "Course {{" + name + "}} created.";
-    }
-
-    @Override
-    public String getName() {
-        return "add";
-    }
-
-    @Override
-    public String getDescription() {
-        return "creates a new course";
-    }
-
-    @Override
-    public String getUsage() {
-        return "<course>";
     }
 
 }

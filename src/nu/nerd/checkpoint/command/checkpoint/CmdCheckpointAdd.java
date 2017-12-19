@@ -2,6 +2,7 @@ package nu.nerd.checkpoint.command.checkpoint;
 
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.command.CheckpointCommand;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
@@ -9,6 +10,11 @@ import org.bukkit.Location;
 
 import java.util.Queue;
 
+@DescribableMeta(
+        name = "add",
+        description = "adds a checkpoint at your current location",
+        usage = "<label>"
+)
 public class CmdCheckpointAdd extends CheckpointCommand {
 
     @Override
@@ -24,21 +30,6 @@ public class CmdCheckpointAdd extends CheckpointCommand {
         course.addCheckpoint(label, location);
 
         return "Checkpoint {{" + label + "}} created for course {{" + course.getName() + "}}.";
-    }
-
-    @Override
-    public String getName() {
-        return "add";
-    }
-
-    @Override
-    public String getDescription() {
-        return "adds a checkpoint at your current location";
-    }
-
-    @Override
-    public String getUsage() {
-        return "<label>";
     }
 
 }

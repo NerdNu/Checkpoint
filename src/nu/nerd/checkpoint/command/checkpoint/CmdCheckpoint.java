@@ -1,7 +1,12 @@
 package nu.nerd.checkpoint.command.checkpoint;
 
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.command.DirectoryCommand;
 
+@DescribableMeta(
+        name = "checkpoint",
+        description = "manage checkpoints"
+)
 public class CmdCheckpoint extends DirectoryCommand {
 
     public CmdCheckpoint() {
@@ -15,16 +20,6 @@ public class CmdCheckpoint extends DirectoryCommand {
                 new CmdCheckpointList(),
                 new CmdCheckpointReload()
         );
-    }
-
-    @Override
-    public String getName() {
-        return "checkpoint";
-    }
-
-    @Override
-    public String getDescription() {
-        return "manage checkpoints";
     }
 
 }

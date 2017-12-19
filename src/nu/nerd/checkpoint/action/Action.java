@@ -3,10 +3,11 @@ package nu.nerd.checkpoint.action;
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
+import nu.nerd.checkpoint.Describable;
+import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.exception.CheckpointException;
 import nu.nerd.checkpoint.exception.UsageException;
-import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,10 +18,9 @@ import java.util.Queue;
 /**
  * Abstraction of an action that occurs when a Trigger is activated.
  */
-public abstract class Action {
+public abstract class Action extends Describable {
 
-    @SuppressWarnings("unchecked")
-    private static List<Class<? extends Action>> actionTypes = Arrays.asList(
+    public static final List<Class<? extends Action>> ACTION_TYPES = Arrays.asList(
             CheckpointAction.class,
             SetCheckpointAction.class,
             GiveItemAction.class,
@@ -29,10 +29,12 @@ public abstract class Action {
     );
 
     private static Map<String, Class<? extends Action>> actionTypeMap = new HashMap<>();
+
     static {
-        for (Class<? extends Action> actionType : actionTypes) {
+        for (Class<? extends Action> actionType : ACTION_TYPES) {
+            DescribableMeta meta = Describable.getMeta(actionType);
             try {
-                actionTypeMap.put(actionType.newInstance().getType(), actionType);
+                actionTypeMap.put(meta.name(), actionType);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -41,15 +43,10 @@ public abstract class Action {
 
     /**
      * Executes the action for the given player.
+     *
      * @param player the player to execute the action for
      */
     public abstract void execute(CheckpointPlayer player);
-
-    /**
-     * Returns the type of action.
-     * @return the action type
-     */
-    public abstract String getType();
 
     /**
      * Returns the action's parameters as a string.
@@ -57,10 +54,6 @@ public abstract class Action {
      */
     public String getParams() {
         return "";
-    }
-
-    protected String getUsage() {
-        return null;
     }
 
     /**
@@ -85,7 +78,7 @@ public abstract class Action {
      */
     public Map<String, Object> serialize() {
         Map<String, Object> config = new HashMap<>();
-        config.put("type", getType());
+        config.put("type", getName());
         saveToConfig(config);
         return config;
     }
@@ -122,7 +115,7 @@ public abstract class Action {
             action.loadFromCommand(player, params);
         } catch (UsageException e) {
             String usage = action.getUsage();
-            String message = "Usage for action {{" + action.getType() + "}}: {{" + action.getType() + usage + "}}";
+            String message = "Usage for action {{" + action.getName() + "}}: {{" + action.getName() + usage + "}}";
             throw new UsageException(null, message);
         }
         return action;
@@ -144,7 +137,7 @@ public abstract class Action {
 
     @Override
     public String toString() {
-        return "{{" + getType() + "}} " + getParams();
+        return "{{" + getName() + "}} " + getParams();
     }
 
 }
