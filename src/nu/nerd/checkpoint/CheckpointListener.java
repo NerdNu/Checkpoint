@@ -1,6 +1,7 @@
 package nu.nerd.checkpoint;
 
 import org.bukkit.block.Block;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.Player;
@@ -43,7 +44,7 @@ public class CheckpointListener implements Listener {
         Block block = event.getClickedBlock();
         ItemStack heldItem = event.getItem();
 
-        if (triggerDispatcher.interactBlock(player, block)) {
+        if (triggerDispatcher.interactBlock(player, block) && event.getHand() != EquipmentSlot.OFF_HAND) {
             event.setUseInteractedBlock(Event.Result.DENY);
         }
 
