@@ -26,6 +26,11 @@ public class SleepAction extends Action {
     }
 
     @Override
+    public String getParams() {
+        return Utils.formatLocation(location);
+    }
+
+    @Override
     protected void loadFromConfig(CheckpointCourse course, Map<String, Object> section) throws CheckpointException {
         Map<String, Object> locationConfig = Utils.getSection(section, "location");
         if (locationConfig == null) {

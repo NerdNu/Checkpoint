@@ -23,6 +23,14 @@ public class Utils {
         return (String) value;
     }
 
+    public static boolean getBoolean(Map config, String key, boolean defaultValue) {
+        Object value = config.get(key);
+        if (value == null || !(value instanceof Boolean)) {
+            return defaultValue;
+        }
+        return (boolean) value;
+    }
+
     public static Map<String, Object> getSection(Map config, String key) {
         Object value = config.get(key);
         if (value == null || !(value instanceof Map)) {
