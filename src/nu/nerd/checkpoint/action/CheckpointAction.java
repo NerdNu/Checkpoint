@@ -3,7 +3,6 @@ package nu.nerd.checkpoint.action;
 import nu.nerd.checkpoint.Checkpoint;
 import nu.nerd.checkpoint.CheckpointCourse;
 import nu.nerd.checkpoint.CheckpointPlayer;
-import nu.nerd.checkpoint.CheckpointPlugin;
 import nu.nerd.checkpoint.DescribableMeta;
 import nu.nerd.checkpoint.Utils;
 import nu.nerd.checkpoint.exception.CheckpointException;
@@ -20,15 +19,18 @@ import java.util.Queue;
 public class CheckpointAction extends Action {
 
     private Checkpoint checkpoint;
+    private boolean checkVisited;
 
     @Override
     public void execute(CheckpointPlayer player) {
-        player.teleport(checkpoint, true);
+        if (!checkVisited || player.hasCheckpoint(checkpoint)) {
+            player.teleport(checkpoint, true);
+        }
     }
 
     @Override
     public String getParams() {
-        return checkpoint.getLabel();
+        return checkpoint.getLabel() + ", check-visited: " + checkVisited;
     }
 
     @Override
@@ -43,6 +45,7 @@ public class CheckpointAction extends Action {
             throw new CheckpointException("No checkpoint provided");
         }
         checkpoint = course.getCheckpoint(label);
+        checkVisited = Utils.getBoolean(section, "check-visited", false);
     }
 
     @Override
@@ -54,11 +57,13 @@ public class CheckpointAction extends Action {
         CheckpointCourse course = player.getCourse();
         String label = params.poll();
         checkpoint = course.getCheckpoint(label);
+        checkVisited = false;
     }
 
     @Override
     protected void saveToConfig(Map<String, Object> config) {
         config.put("checkpoint", checkpoint.getLabel());
+        config.put("check-visited", checkVisited);
     }
 
 }

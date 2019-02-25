@@ -116,7 +116,7 @@ public abstract class Action extends Describable {
             action.loadFromCommand(player, params);
         } catch (UsageException e) {
             String usage = action.getUsage();
-            String message = "Usage for action {{" + action.getName() + "}}: {{" + action.getName() + usage + "}}";
+            String message = "Usage for action {{" + action.getName() + "}}: {{" + action.getName() + " " + usage + "}}";
             throw new UsageException(null, message);
         }
         return action;
